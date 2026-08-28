@@ -10,47 +10,33 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0f172a; /* Fundo bem escuro */
   padding: 20px;
 }
 
 .login-container {
-  background: #ffffff;
+  background: #1e293b; /* Card um pouco mais claro que o fundo */
   padding: 40px 35px;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   width: 100%;
   max-width: 420px;
   animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  color: #e2e8f0;
 }
 
 h1 {
   text-align: center;
   margin-bottom: 28px;
-  color: #333;
+  color: #f8fafc;
   font-size: 26px;
   font-weight: 600;
-}
-
-.input-group {
-  margin-bottom: 18px;
 }
 
 label {
   display: block;
   margin-bottom: 6px;
-  color: #555;
+  color: #94a3b8;
   font-size: 14px;
   font-weight: 500;
 }
@@ -58,22 +44,24 @@ label {
 input {
   width: 100%;
   padding: 12px 14px;
-  border: 1.5px solid #ddd;
+  border: 1.5px solid #334155;
   border-radius: 8px;
   font-size: 15px;
+  background: #0f172a;
+  color: #f1f5f9;
   transition: all 0.25s ease;
   outline: none;
 }
 
 input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 button {
   width: 100%;
   padding: 13px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #3b82f6;
   color: white;
   border: none;
   border-radius: 8px;
@@ -85,20 +73,9 @@ button {
 }
 
 button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
-}
-
-button:active {
-  transform: translateY(0);
-}
-
-#mensagem {
-  margin-top: 16px;
-  text-align: center;
-  font-weight: 500;
-  font-size: 14px;
-  min-height: 20px;
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
 }
 
 .link-alternativo {
@@ -108,7 +85,7 @@ button:active {
 }
 
 .link-alternativo a {
-  color: #667eea;
+  color: #60a5fa;
   text-decoration: none;
   font-weight: 500;
 }

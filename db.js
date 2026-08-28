@@ -1,26 +1,24 @@
-const path = require('path');
 const Database = require('better-sqlite3');
+const path = require('path');
 
-const CAMINHO_BANCO = path.join(__dirname, 'banco.sqlite');
+const dbPath = path.join(__dirname, 'database.sqlite');
+const db = new Database(dbPath);
 
-const db = new Database(CAMINHO_BANCO);
-
-// Boas práticas de performance/confiabilidade do SQLite
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
-
-// Cria a tabela de usuários caso ainda não exista
+// Cria a tabela de usuários se não existir
 db.exec(`
   CREATE TABLE IF NOT EXISTS usuarios (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    email TEXT NOT NULL UNIQUE,
-    senha TEXT NOT NULL,
+    nome TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    senha TEXT,
+    googleId TEXT,
     dataNascimento TEXT,
     telefone TEXT,
-    cargo TEXT,
-    criadoEm TEXT DEFAULT (datetime('now'))
+    emailVerificado INTEGER DEFAULT 0,
+    criadoEm TEXT DEFAULT CURRENT_TIMESTAMP
   )
 `);
+
+console.log('Banco de dados SQLite conectado com sucesso!');
 
 module.exports = db;

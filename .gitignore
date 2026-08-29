@@ -3,3 +3,6 @@ node_modules/
 banco.sqlite
 banco.sqlite-wal
 banco.sqlite-shm
+database.sqlite
+database.sqlite-wal
+database.sqlite-shm

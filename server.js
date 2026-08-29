@@ -2,6 +2,8 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
+const helmet = require('helmet');
+const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -39,6 +41,16 @@ passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
 // Middlewares
+app.use(helmet({
+  // Desativado por padrão: o CSP restritivo do Helmet bloqueia scripts/estilos
+  // inline que as páginas em public/ ainda usam. Ative e ajuste as diretivas
+  // quando quiser reforçar isso (veja https://helmetjs.github.io/#content-security-policy).
+  contentSecurityPolicy: false
+}));
+app.use(cors({
+  origin: process.env.URL_FRONTEND || 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({

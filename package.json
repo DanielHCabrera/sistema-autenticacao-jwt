@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "engines": {
-    "node": ">=18.0.0"
+    "node": "20.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -24,10 +24,10 @@
     "express-session": "^1.18.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.3",
-    "morgan": "^1.12.0",
+    "morgan": "^1.10.0",
     "nodemailer": "^6.9.14",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "winston": "^3.19.0"
+    "winston": "^3.14.2"
   }
 }

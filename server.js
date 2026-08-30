@@ -4,35 +4,30 @@ const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
 const cors = require('cors');
+const morgan = require('morgan');
 const session = require('express-session');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const jwt = require('jsonwebtoken');
-const fs = require('fs');
 const authRoutes = require('./routes/auth');
 const db = require('./db');
+const logger = require('./logger');
+const { gerarAccessToken, gerarRefreshToken } = require('./middlewares/tokens');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const URL_BASE = process.env.URL_FRONTEND || `http://localhost:${PORT}`;
 
-const CAMINHO_USUARIOS = path.join(__dirname, 'usuarios.json');
-
-// Funções auxiliares
-function lerUsuarios() {
-  if (!fs.existsSync(CAMINHO_USUARIOS)) return [];
-  const dados = fs.readFileSync(CAMINHO_USUARIOS, 'utf8');
-  return JSON.parse(dados || '[]');
-}
-
-function salvarUsuarios(usuarios) {
-  fs.writeFileSync(CAMINHO_USUARIOS, JSON.stringify(usuarios, null, 4), 'utf8');
+// Necessário quando o app roda atrás de um proxy reverso (Render, Railway, Heroku, etc.),
+// para que req.ip e os cookies "secure" funcionem corretamente.
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
 }
 
 // Configuração do Passport + Google
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: 'http://localhost:3000/auth/google/callback'
+  callbackURL: `${URL_BASE}/auth/google/callback`
 }, (accessToken, refreshToken, profile, done) => {
   return done(null, profile);
 }));
@@ -48,15 +43,21 @@ app.use(helmet({
   contentSecurityPolicy: false
 }));
 app.use(cors({
-  origin: process.env.URL_FRONTEND || 'http://localhost:3000',
+  origin: URL_BASE,
   credentials: true
+}));
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev', {
+  stream: { write: (mensagem) => logger.http(mensagem.trim()) }
 }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: process.env.JWT_SECRET || 'segredo_temporario',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production'
+  }
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -94,19 +95,17 @@ app.get('/auth/google/callback',
         usuario = { id: info.lastInsertRowid, nome, email };
       }
 
-      const token = jwt.sign(
-        {
-          id: usuario.id,
-          email: usuario.email,
-          nome: usuario.nome
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '2h' }
-      );
+      logger.info('Login via Google', { email, id: usuario.id });
 
-      res.redirect(`/painel.html?token=${token}&nome=${encodeURIComponent(usuario.nome)}`);
+      const accessToken = gerarAccessToken(usuario);
+      const refreshToken = gerarRefreshToken(usuario.id);
+
+      res.redirect(
+        `/google-callback.html?accessToken=${accessToken}&refreshToken=${refreshToken}` +
+        `&nome=${encodeURIComponent(usuario.nome)}&email=${encodeURIComponent(usuario.email)}&id=${usuario.id}`
+      );
     } catch (erro) {
-      console.error('Erro no callback do Google:', erro);
+      logger.error('Erro no callback do Google', { erro: erro.message });
       res.redirect('/?erro=callback');
     }
   }
@@ -117,6 +116,12 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Handler de erros não tratados nas rotas (garante que tudo passe pelo logger)
+app.use((erro, req, res, next) => {
+  logger.error('Erro não tratado', { erro: erro.message, stack: erro.stack, rota: req.originalUrl });
+  res.status(500).json({ sucesso: false, mensagem: 'Erro interno do servidor.' });
+});
+
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  logger.info(`Servidor rodando em ${URL_BASE}`);
 });

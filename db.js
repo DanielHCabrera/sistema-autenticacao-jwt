@@ -44,6 +44,19 @@ db.exec(`
   )
 `);
 
+// Tokens de verificação de e-mail (confirmação de cadastro)
+db.exec(`
+  CREATE TABLE IF NOT EXISTS tokens_verificacao_email (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    token TEXT NOT NULL UNIQUE,
+    usuarioId INTEGER NOT NULL,
+    criadoEm TEXT DEFAULT CURRENT_TIMESTAMP,
+    expiraEm TEXT NOT NULL,
+    usado INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (usuarioId) REFERENCES usuarios (id) ON DELETE CASCADE
+  )
+`);
+
 // Logs de auditoria de acesso (tentativas de login, sucesso ou falha)
 db.exec(`
   CREATE TABLE IF NOT EXISTS logs_acesso (

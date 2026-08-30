@@ -38,4 +38,22 @@ async function enviarEmailRedefinicaoSenha(destinatario, linkRedefinicao) {
   });
 }
 
-module.exports = { enviarEmailRedefinicaoSenha };
+async function enviarEmailVerificacao(destinatario, linkVerificacao) {
+  if (!smtpConfigurado) {
+    console.log('--- [MODO DEV: SMTP não configurado] ---');
+    console.log(`Link de verificação de e-mail para ${destinatario}:`);
+    console.log(linkVerificacao);
+    console.log('-----------------------------------------');
+    return;
+  }
+
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+    to: destinatario,
+    subject: 'Confirme seu e-mail',
+    text: `Clique no link para confirmar seu e-mail (válido por 24 horas): ${linkVerificacao}`,
+    html: `<p>Clique no link abaixo para confirmar seu e-mail (válido por 24 horas):</p><p><a href="${linkVerificacao}">${linkVerificacao}</a></p>`
+  });
+}
+
+module.exports = { enviarEmailRedefinicaoSenha, enviarEmailVerificacao };

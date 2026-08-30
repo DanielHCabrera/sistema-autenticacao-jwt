@@ -25,26 +25,38 @@ document.addEventListener('DOMContentLoaded', () => {
       const dados = await resposta.json();
 
       if (resposta.ok) {
-  mensagem.style.color = 'green';
-  mensagem.textContent = dados.mensagem;
+        mensagem.style.color = 'green';
+        mensagem.textContent = dados.mensagem;
 
-  // Salva o token e os dados do usuário
-  localStorage.setItem('token',dados.token);
-  localStorage.setItem('usuarioLogado', JSON.stringify(dados.usuario));
+        // Salva accessToken, refreshToken e os dados do usuário
+        salvarSessao(dados.accessToken, dados.refreshToken, dados.usuario);
 
-  setTimeout (() => {
-    window.location.href = 'painel.html';
-  }, 100);
-  } else {
-    mensagem.style.color = 'red';
-    mensagem.textContent = dados.mensagem;
-  }
+        setTimeout(() => {
+          window.location.href = 'painel.html';
+        }, 100);
+      } else if (dados.emailNaoVerificado) {
+        mensagem.style.color = 'red';
+        mensagem.innerHTML = `${dados.mensagem} <a href="#" id="linkReenviar">Reenviar e-mail de confirmação</a>`;
 
-  // Salva os dados do usuário no navegador
-  localStorage.setItem('usuarioLogado', JSON.stringify({
-    email: document.getElementById('email').value
-  }));
-
+        document.getElementById('linkReenviar').addEventListener('click', async (evento) => {
+          evento.preventDefault();
+          try {
+            const respostaReenvio = await fetch('/reenviar-verificacao', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email })
+            });
+            const dadosReenvio = await respostaReenvio.json();
+            mensagem.style.color = 'green';
+            mensagem.textContent = dadosReenvio.mensagem;
+          } catch (erroReenvio) {
+            console.error(erroReenvio);
+          }
+        });
+      } else {
+        mensagem.style.color = 'red';
+        mensagem.textContent = dados.mensagem;
+      }
     } catch (erro) {
       mensagem.style.color = 'red';
       mensagem.textContent = 'Erro ao conectar com o servidor.';

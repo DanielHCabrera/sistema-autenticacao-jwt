@@ -1,8 +1,25 @@
-.env
+# Dependências
 node_modules/
-banco.sqlite
-banco.sqlite-wal
-banco.sqlite-shm
+
+# Variáveis de ambiente e segredos
+.env
+
+# Banco de dados local
 database.sqlite
 database.sqlite-wal
 database.sqlite-shm
+banco.sqlite
+banco.sqlite-wal
+banco.sqlite-shm
+
+# Dados legados (se ainda existir)
+usuarios.json
+
+# Logs
+logs/*.log
+npm-debug.log*
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+.vscode/
